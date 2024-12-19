@@ -13,8 +13,25 @@ The **Daily News Summarizer and Analyst** aims to provide concise, categorized, 
 This project leverages **12GB of VRAM** provided by Google Cloud for running Ollama locally.
 
 # Using
+To run the code you have to have Ollama running on your machine and llama3.2 .
+### running on colab
+
 ```
-git clone https://github.com/belnad/AI_LLM.git
-cd data
-python3 luncher.py
+!pip install colab-xterm
+````
+load xterm
+```
+%load_ext colabxterm
+````
+run xterm
+```
+xterm
+````
+
+run commands in command line:
+```
+curl -fsSL https://ollama.com/install.sh | sh
+ollama serve & 
+ollama pull llama3.2
+
 ```
