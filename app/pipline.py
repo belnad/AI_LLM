@@ -31,7 +31,7 @@ class ClassifyingEvent(Event):
 
 class NewsSummarizer(Workflow):
     Settings.embedding_model = HuggingFaceEmbedding()
-    Settings.llm = Ollama(model="llama3.2")
+    Settings.llm = Ollama(model="llama3.2:3b")
 
     @step
     async def fetch(self, ctx: Context, ev: StartEvent) -> APIFetchEvent :
@@ -48,7 +48,6 @@ class NewsSummarizer(Workflow):
         """
 
         # Extract query parameters from the StartEvent
-        global url
         query = ev.query  # Search keyword for news articles
 
         # Extract filter parameters from StartEvent
@@ -60,16 +59,19 @@ class NewsSummarizer(Workflow):
 
         # Initialize an empty list to store article data
         articles_data = []
-
+        url = ""
         # Construct the GNews API request URL
         if  "category" not in filters and "country" in filters:
-            url = f"https://newsapi.org/v2/top-headlines?q={query}&lang=en&country={filters['country']}&max=5&apikey={apikey}"
+            url = f"https://newsapi.org/v2/top-headlines?q={query}&lang=en&country={filters['country']}&pageSize=1&page=1&apikey={apikey}"
+            print("------------------\n", "Debug : ", url, "\n-------------------")
         elif "category" not in filters and "country" not in filters:
-            url = f"https://newsapi.org/v2/top-headlines?q={query}&lang=en&max=5&apikey={apikey}"
+            url = f"https://newsapi.org/v2/everything?q={query}&lang=en&pageSize=1&page=1&apikey={apikey}"
+            print("------------------\n", "Debug : ", url, "\n-------------------")
         elif "category" in filters and "country" in filters:
-            url = f"https://newsapi.org/v2/top-headlines?q={query}&category={filters['category']}&lang=en&country={filters['country']}&max=5&apikey={apikey}"
+            url = f"https://newsapi.org/v2/top-headlines?q={query}&category={filters['category']}&lang=en&country={filters['country']}&pageSize=1&page=1&apikey={apikey}"
+            print("------------------\n", "Debug : ", url, "\n-------------------")
         elif "category" in filters and "country" not in  filters:
-            url = f"https://newsapi.org/v2/top-headlines?q={query}&category={filters['category']}&lang=en&max=5&apikey={apikey}"
+            url = f"https://newsapi.org/v2/top-headlines?q={query}&category={filters['category']}&lang=en&pageSize=1&page=1&apikey={apikey}"
 
         # Send a request to the GNews API
         with urllib.request.urlopen(url) as response:
@@ -136,7 +138,7 @@ class NewsSummarizer(Workflow):
         documents = []
 
         # Iterate through the articles and fetch their full content
-        for i, item in enumerate(articles[:2]):
+        for i, item in enumerate(articles):
             url = item.get("url", "")  # Extract the URL of the article
             print(f"Processing URL {i + 1}/{len(articles)}: {url}")
 
@@ -272,7 +274,7 @@ class NewsSummarizer(Workflow):
 # Function to execute the NewsSummarizer workflow
 async def run_news_workflow(query: str, filters: dict):
     # Instantiate the workflow
-    news_summarizer = NewsSummarizer(timeout=None, verbose=True)
+    news_summarizer = NewsSummarizer(timeout=500.0, verbose=True)
 
     # Run the workflow with inputs
     result = await news_summarizer.run(query=query, filters=filters)

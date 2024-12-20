@@ -9,8 +9,8 @@ async def process_query_with_backend(query, theme, location):
     filters = {}
     if theme != "All":
         filters["category"] = theme
-    if location:
-        filters["location"] = location
+    if location != "All":
+        filters["country"] = location
     return await run_news_workflow(query, filters)
 
 # Helper function to run the async function in a synchronous Streamlit environment
@@ -39,8 +39,8 @@ if page == "Home":
 
     # User input section
     query = st.text_input("Enter your query", placeholder="Type your query here...")
-    theme = st.selectbox("Filter by theme (optional)", ["All", "Politics", "Health"])
-    location = st.text_input("Filter by location (optional)", placeholder="Enter a location...")
+    theme = st.selectbox("Filter by theme (optional)", ["All", "business","entertainment", "general", "health", "science", "sports","technology"])
+    location = st.selectbox("Filter by location (optional)", ["All", "us", "uk", "fr"])
 
     if st.button("Process"):
         # Store the inputs to session state
