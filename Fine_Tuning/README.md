@@ -1,0 +1,1 @@
+To train the model, you must to create an account on this website https://wandb.ai/authorize
